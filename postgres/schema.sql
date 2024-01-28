@@ -7,7 +7,7 @@ CREATE TABLE bins (
 CREATE TABLE requests (
   id serial PRIMARY KEY,
   bin_id int NOT NULL REFERENCES bins (id) ON DELETE CASCADE,
-  mongo_id varchar(12) NOT NULL,
+  mongo_id varchar NOT NULL,
   http_method varchar NOT NULL,
   http_path varchar NOT NULL
   -- received_at timestamp NOT NULL, TODO

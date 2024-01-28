@@ -2,7 +2,7 @@ const requestsRouter = require('express').Router()
 const { saveRequest } = require('./services/db')
 
 requestsRouter.post('/', async(req, res) => {
-  saveRequest('asdf')
+  saveRequest(req.body)
   res.status(201).send()
 })
 
