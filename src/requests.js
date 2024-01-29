@@ -1,9 +1,10 @@
 const requestsRouter = require('express').Router()
-const { saveRequest, getBinId, savePayload, getRequest } = require('./services/db')
+const { Request, saveRequest, getBinId, savePayload, getRequestById, getAllRequests } = require('./services/db')
 
 requestsRouter.get('/', (req, res) => {
-  getRequest()
-  res.status(200).send()
+  Request.find({}).then(requests => {
+    res.json(requests)
+  })
 })
 
 requestsRouter.post('/', async(req, res) => {
