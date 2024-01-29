@@ -13,6 +13,7 @@ requestsRouter.post('/', async(req, res) => {
   if (binId) {
     const mongoId = await savePayload(req.body, binId)
     await saveRequest(mongoId, binId, "POST", urlPath)
+    console.log("Created new webhook entry", urlPath, binId, mongoId)
     res.status(202).send()
   } else {
     res.status(400).send()
