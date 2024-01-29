@@ -1,6 +1,10 @@
 const { Client } = require('pg')
-
 const mongoose = require('mongoose')
+
+const requestSchema = new mongoose.Schema({ payloadData: mongoose.Mixed });
+
+const Request = mongoose.model('Request', requestSchema);
+
 
 mongoose.connect('mongodb://127.0.0.1/rhh')
 const db = mongoose.connection
@@ -25,13 +29,11 @@ async function saveRequestDeprecated(req) {
 }
 
 async function savePayload(json) {
-  let mongo_id
-  await db.collection('requests').insertOne(json)
-          .then(result => {
-            mongo_id = result.insertedId.toString()
-    })
+  const request = new Request({"payloadData": json})
 
-  return mongo_id
+  request.save().then(() =>
+    console.log('request saved!')
+  )
 }
 
 async function getBinId(urlPath) {
@@ -61,4 +63,9 @@ async function saveRequest(mongoId, binId, http_method, http_path) {
   client.query("INSERT INTO requests (mongo_id, bin_id, http_method, http_path) VALUES ($1, $2, $3, $4)", [mongoId, binId, http_method, http_path])
 }
 
-module.exports = { saveRequest, getBinId, savePayload }
+async function getRequest() {
+  const result = await Request.findById(new mongoose.Types.ObjectId('65b820c2484a21539b808433'))
+  console.log(result.payloadData)
+}
+
+module.exports = { saveRequest, getBinId, savePayload, getRequest }

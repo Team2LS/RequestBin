@@ -1,7 +1,8 @@
 const requestsRouter = require('express').Router()
-const { saveRequest, getBinId, savePayload } = require('./services/db')
+const { saveRequest, getBinId, savePayload, getRequest } = require('./services/db')
 
 requestsRouter.get('/', (req, res) => {
+  getRequest()
   res.status(200).send()
 })
 
@@ -12,7 +13,7 @@ requestsRouter.post('/', async(req, res) => {
 
   if (binId) {
     const mongoId = await savePayload(req.body, binId)
-    await saveRequest(mongoId, binId, "POST", urlPath)
+    // await saveRequest(mongoId, binId, "POST", urlPath)
     console.log("Created new webhook entry", urlPath, binId, mongoId)
     res.status(202).send()
   } else {
