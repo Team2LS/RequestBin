@@ -1,11 +1,23 @@
 const requestsRouter = require('express').Router()
-const { saveRequest } = require('./services/db')
+const { saveRequest, getBinId, savePayload } = require('./services/db')
 
-requestsRouter.post('/', async(req, res) => {
-  saveRequest(req.body)
-  res.status(201).send()
+requestsRouter.get('/', (req, res) => {
+  res.status(200).send()
 })
 
+requestsRouter.post('/', async(req, res) => {
+  const urlPath = req.headers.host.split('.')[0]
+
+  const binId = await getBinId(urlPath)
+
+  if (binId) {
+    const mongoId = await savePayload(req.body, binId)
+    await saveRequest(mongoId, binId, "POST", urlPath)
+    res.status(202).send()
+  } else {
+    res.status(400).send()
+  }
+})
 
 module.exports = requestsRouter
 
