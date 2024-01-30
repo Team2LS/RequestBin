@@ -6,7 +6,6 @@ const requestsRouter = require('./requests')
 
 app.use(express.json())
 
-
 app.use('/', requestsRouter)
 
 app.listen(PORT)
