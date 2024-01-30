@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 
 const requestSchema = new mongoose.Schema({ payloadData: mongoose.Mixed });
 
-const Request = mongoose.model('Request', requestSchema);
+const Payload = mongoose.model('Request', requestSchema);
 
 
 mongoose.connect('mongodb://127.0.0.1/rhh')
@@ -11,7 +11,7 @@ const db = mongoose.connection
 
 
 async function savePayload(json) {
-  const request = new Request({"payloadData": json})
+  const request = new Payload({"payloadData": json})
 
   request.save().then(() =>
     console.log('request saved!')
