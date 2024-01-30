@@ -2,10 +2,9 @@ import * as express from 'express';
 const requestsRouter = express.Router()
 import { Payload, saveRequest, getBinId, savePayload, getRequestById, getAllRequests } from './services/db'
 
-requestsRouter.get('/', (req, res) => {
-  Payload.find({}).then(requests => {
-    res.json(requests)
-  })
+requestsRouter.get('/', async(req, res) => {
+  const requests = getAllRequests()
+  res.json(requests)
 })
 
 requestsRouter.post('/', async(req, res) => {

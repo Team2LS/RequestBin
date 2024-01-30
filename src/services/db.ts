@@ -3,9 +3,9 @@ import * as pg from 'pg';
 
 const Client = pg.Client;
 
-const requestSchema = new mongoose.Schema({ payloadData: {} });
+const payloadSchema = new mongoose.Schema({ payloadData: {} });
 
-const Payload = mongoose.model('Request', requestSchema);
+const Payload = mongoose.model('Payload', payloadSchema);
 
 
 mongoose.connect('mongodb://127.0.0.1/rhh')
@@ -13,10 +13,10 @@ const db = mongoose.connection
 
 
 async function savePayload(json: Object) {
-  const request = new Payload({"payloadData": json})
+  const payload = new Payload({"payloadData": json})
 
-  return request.save().then((result) => {
-    console.log('request saved!')
+  return payload.save().then((result) => {
+    console.log('payload saved!')
     return result._id.toString()
   })
 }
@@ -55,10 +55,9 @@ async function getRequestById(id: string) {
   return result.payloadData
 }
 
-function getAllRequests() {
-  return Payload.find({}).then((requests) => {
-    return requests
-  })
+async function getAllRequests() {
+  const requests = await Payload.find({})
+  return requests
 }
 
 export { Payload, saveRequest, getBinId, savePayload, getRequestById, getAllRequests }
