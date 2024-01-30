@@ -1,9 +1,10 @@
 import * as express from 'express';
 const requestsRouter = express.Router()
-import { Payload, saveRequest, getBinId, savePayload, getRequestById, getAllRequests } from './services/db'
+import { savePayload, getPayloadById, getAllPayloads } from './services/mongodb'
+import { getBinId, saveRequest } from './services/psql'
 
 requestsRouter.get('/', async(req, res) => {
-  const requests = getAllRequests()
+  const requests = getAllPayloads()
   res.json(requests)
 })
 
