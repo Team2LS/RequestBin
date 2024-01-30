@@ -32,45 +32,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express = __importStar(require("express"));
-const requestsRouter = express.Router();
-const mongodb_1 = require("./services/mongodb");
-const psql_1 = require("./services/psql");
-requestsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const requests = (0, mongodb_1.getAllPayloads)();
-    res.json(requests);
-}));
-requestsRouter.get('/payload/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const payload = (0, mongodb_1.getPayloadById)(id);
-    if (payload === null) {
-        res.status(400).send();
-    }
-    else {
-        res.json(payload);
-    }
-}));
-requestsRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let urlPath;
-    if (req.headers.host === undefined) {
-        res.status(400).send();
-        return null;
-    }
-    else {
-        urlPath = req.headers.host.split('.')[0];
-    }
-    const binId = yield (0, psql_1.getBinId)(urlPath);
-    if (urlPath.split('.')[0] == undefined) {
-        res.status(400).send();
-    }
-    if (binId) {
-        const mongoId = yield (0, mongodb_1.savePayload)(req.body);
-        yield (0, psql_1.saveRequest)(mongoId, binId, "POST", urlPath);
-        console.log("Created new webhook entry", urlPath, binId, mongoId);
-        res.status(202).send();
-    }
-    else {
-        res.status(400).send();
-    }
-}));
-module.exports = requestsRouter;
+exports.saveRequest = exports.getBinId = void 0;
+const pg = __importStar(require("pg"));
+const Client = pg.Client;
+function getBinId(urlPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const client = new Client({
+            "database": "rhh",
+        });
+        yield client.connect();
+        const result = yield client.query("SELECT * FROM bins WHERE url_path = $1", [urlPath]);
+        yield client.end();
+        if (result.rowCount != 1) {
+            return undefined;
+        }
+        else {
+            return result.rows[0].id;
+        }
+    });
+}
+exports.getBinId = getBinId;
+function saveRequest(mongoId, binId, http_method, http_path) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const client = new Client({
+            "database": "rhh",
+        });
+        yield client.connect();
+        client.query("INSERT INTO requests (mongo_id, bin_id, http_method, http_path) VALUES ($1, $2, $3, $4)", [mongoId, binId, http_method, http_path]);
+    });
+}
+exports.saveRequest = saveRequest;

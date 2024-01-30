@@ -32,45 +32,36 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express = __importStar(require("express"));
-const requestsRouter = express.Router();
-const mongodb_1 = require("./services/mongodb");
-const psql_1 = require("./services/psql");
-requestsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const requests = (0, mongodb_1.getAllPayloads)();
-    res.json(requests);
-}));
-requestsRouter.get('/payload/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const payload = (0, mongodb_1.getPayloadById)(id);
-    if (payload === null) {
-        res.status(400).send();
-    }
-    else {
-        res.json(payload);
-    }
-}));
-requestsRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let urlPath;
-    if (req.headers.host === undefined) {
-        res.status(400).send();
-        return null;
-    }
-    else {
-        urlPath = req.headers.host.split('.')[0];
-    }
-    const binId = yield (0, psql_1.getBinId)(urlPath);
-    if (urlPath.split('.')[0] == undefined) {
-        res.status(400).send();
-    }
-    if (binId) {
-        const mongoId = yield (0, mongodb_1.savePayload)(req.body);
-        yield (0, psql_1.saveRequest)(mongoId, binId, "POST", urlPath);
-        console.log("Created new webhook entry", urlPath, binId, mongoId);
-        res.status(202).send();
-    }
-    else {
-        res.status(400).send();
-    }
-}));
-module.exports = requestsRouter;
+exports.getAllPayloads = exports.getPayloadById = exports.savePayload = void 0;
+const mongoose = __importStar(require("mongoose"));
+const payloadSchema = new mongoose.Schema({ payloadData: {} });
+const Payload = mongoose.model('Payload', payloadSchema);
+mongoose.connect('mongodb://127.0.0.1/rhh');
+const db = mongoose.connection;
+function savePayload(json) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const payload = new Payload({ "payloadData": json });
+        return payload.save().then((result) => {
+            console.log('payload saved!');
+            return result._id.toString();
+        });
+    });
+}
+exports.savePayload = savePayload;
+function getPayloadById(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = yield Payload.findById(new mongoose.Types.ObjectId(id));
+        if (result === null) {
+            return null;
+        }
+        return result.payloadData;
+    });
+}
+exports.getPayloadById = getPayloadById;
+function getAllPayloads() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const requests = yield Payload.find({});
+        return requests;
+    });
+}
+exports.getAllPayloads = getAllPayloads;

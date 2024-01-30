@@ -16,14 +16,15 @@ async function savePayload(json: Object) {
 }
 
 async function getPayloadById(id: string) {
-  const result = await Payload.findById(new mongoose.Types.ObjectId(id))
-  if (result === null) { return }
+  const result = await Payload.findById(id)
+  if (result === null) { return null }
 
   return result.payloadData
 }
 
 async function getAllPayloads() {
   const requests = await Payload.find({})
+  console.log(requests.length)
   return requests
 }
 

@@ -4,8 +4,20 @@ import { savePayload, getPayloadById, getAllPayloads } from './services/mongodb'
 import { getBinId, saveRequest } from './services/psql'
 
 requestsRouter.get('/', async(req, res) => {
-  const requests = getAllPayloads()
+  const requests = await getAllPayloads()
+
   res.json(requests)
+})
+
+requestsRouter.get('/payload/:id', async(req, res) => {
+  const id = req.params.id
+  const payload = await getPayloadById(id)
+
+  if (payload === null) {
+    res.status(400).send()
+  } else {
+    res.json(payload)
+  }
 })
 
 requestsRouter.post('/', async(req, res) => {
@@ -13,7 +25,7 @@ requestsRouter.post('/', async(req, res) => {
 
   if (req.headers.host === undefined) {
     res.status(400).send()
-    return undefined
+    return null
   } else {
     urlPath = req.headers.host.split('.')[0]
   }
