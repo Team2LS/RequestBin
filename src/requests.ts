@@ -1,7 +1,8 @@
 import * as express from 'express';
 const requestsRouter = express.Router()
 import { savePayload, getPayloadById, getAllPayloads } from './services/mongodb'
-import { getBinId, saveRequest } from './services/psql'
+import { getBinId, saveRequest, createBin } from './services/psql'
+import { makeUrlPath } from './helpers';
 
 requestsRouter.get('/', async(req, res) => {
   const requests = await getAllPayloads()
@@ -45,5 +46,15 @@ requestsRouter.post('/', async(req, res) => {
     res.status(400).send()
   }
 })
+
+requestsRouter.post('/api/bin', async(req, res) => {
+  const urlPath = makeUrlPath(12)
+  try {
+    await createBin(urlPath)
+  } catch {
+    console.log("oh no the bin wasn't made")
+  }
+  res.send(urlPath)
+}) 
 
 module.exports = requestsRouter
