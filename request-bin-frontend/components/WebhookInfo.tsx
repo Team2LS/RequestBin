@@ -5,14 +5,11 @@ interface IMyProps {
   http_path: string
 }
 
-
 const WebhookInfo: React.FC<IMyProps> = (props: IMyProps) => {
-  // const payload: any = props.data;
-
   return (
-    <li>
+    <>
       {props.request_method} , {props.http_path}
-    </li>
+    </>
   );
 }
 
