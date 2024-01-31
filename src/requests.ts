@@ -5,6 +5,7 @@ import { getBinId, saveRequest, createBin, getAllBins, getAllRequestFromBin } fr
 import { makeUrlPath } from './helpers';
 
 // get all payloads from mongoDB
+// TODO Delete, used for testing purposes
 requestsRouter.get('/', async(req, res) => {
   const requests = await getAllPayloads()
 
@@ -12,7 +13,7 @@ requestsRouter.get('/', async(req, res) => {
 })
 
 // get a payload from mongoDB
-requestsRouter.get('/payload/:id', async(req, res) => {
+requestsRouter.get('/api/payload/:id', async(req, res) => {
   const id = req.params.id
   const payload = await getPayloadById(id)
 
@@ -73,5 +74,6 @@ requestsRouter.get('/api/bin/:urlPath', async(req, res) => {
 
   res.send(await getAllRequestFromBin(urlPath))
 })
+
 
 module.exports = requestsRouter
