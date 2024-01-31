@@ -1,4 +1,11 @@
-# RequestBin
+# Requests Hit Hole
+
+<h3>Backend Setup</h3>
+1. run `createdb rhh`
+2. import the schema into the db `psql -d rhh < schema.sql`
+3. ensure both psql and mongodb are running, default ports
+4. **Erik only**: Modify `CONNECTION` object in `services/psql.ts` to include username for psql authentication
+5. **If using Postman locally**: manually insert a bin called `localhost:3001` into the `bins` table
 
 **MVP:**
 - Create a bin endpoint URL
