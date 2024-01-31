@@ -1,15 +1,17 @@
 import * as express from 'express';
 const requestsRouter = express.Router()
 import { savePayload, getPayloadById, getAllPayloads } from './services/mongodb'
-import { getBinId, saveRequest, createBin } from './services/psql'
+import { getBinId, saveRequest, createBin, getAllBins, getAllRequestFromBin } from './services/psql'
 import { makeUrlPath } from './helpers';
 
+// get all payloads from mongoDB
 requestsRouter.get('/', async(req, res) => {
   const requests = await getAllPayloads()
 
   res.json(requests)
 })
 
+// get a payload from mongoDB
 requestsRouter.get('/payload/:id', async(req, res) => {
   const id = req.params.id
   const payload = await getPayloadById(id)
@@ -21,6 +23,7 @@ requestsRouter.get('/payload/:id', async(req, res) => {
   }
 })
 
+// saves payload to mongoDB and request to postgres
 requestsRouter.post('/', async(req, res) => {
   let urlPath
 
@@ -47,14 +50,28 @@ requestsRouter.post('/', async(req, res) => {
   }
 })
 
+// create new bin in postgres
 requestsRouter.post('/api/bin', async(req, res) => {
   const urlPath = makeUrlPath(12)
   try {
     await createBin(urlPath)
   } catch {
     console.log("oh no the bin wasn't made")
+    res.status(400).send()
   }
   res.send(urlPath)
-}) 
+})
+
+// get all bins from postgres
+requestsRouter.get('/api/bins', async(req, res) => {
+  res.send(await getAllBins())
+})
+
+// get all requests for a bin
+requestsRouter.get('/api/bin/:urlPath', async(req, res) => {
+  const urlPath = req.params.urlPath
+
+  res.send(await getAllRequestFromBin(urlPath))
+})
 
 module.exports = requestsRouter

@@ -24,7 +24,6 @@ async function getPayloadById(id: string) {
 
 async function getAllPayloads() {
   const requests = await Payload.find({})
-  console.log(requests.length)
   return requests
 }
 
