@@ -1,10 +1,10 @@
 const baseUrl = 'http://localhost:3001';
 
-const getAll = () => {
-  return fetch(baseUrl)
+const getRequestsByBinId = (binId : string) => {
+  return fetch(baseUrl + "/api/bin/" + binId)
     .then(response => response.ok ? response.json() : response.text())
     .then(data => data)
     .catch(error => console.error(error));
 };
 
-export default { getAll };
+export default { getRequestsByBinId };
