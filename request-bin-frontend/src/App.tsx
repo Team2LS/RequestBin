@@ -55,7 +55,7 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
   const handleRequestInfoClick = (mongoId: string): void => {
     requestService
       .getPayloadByMongoId(mongoId)
-      .then(data => setRequestDetail(JSON.stringify(data, null, 2)))
+      .then(data => setRequestDetail(data))
   };
 
   return (
@@ -71,10 +71,10 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
 
 const RequestNav = ({ webhooks, handleRequestInfoClick }) => {
   return (
-    <div className="btn-group-vertical float-left">
-      <ButtonGroup vertical>
+    <div style={{width: '25%', minWidth: '300px', background: 'red', top: 0, position: 'relative'}}>
+      <ButtonGroup vertical >
         {webhooks.map(webhooks =>
-          <Button key={webhooks["id"]} type="button" className="btn btn-outline-dark" onClick={() => handleRequestInfoClick(webhooks["mongo_id"])}>
+          <Button key={webhooks["id"]} className="btn-outline-dark" onClick={() => handleRequestInfoClick(webhooks["mongo_id"])}>
             <WebhookInfo request_method={webhooks["http_method"]} http_path={webhooks["http_path"]}/>
           </Button>
         )}
@@ -102,7 +102,7 @@ const BinNav = ({ binId, refreshList, setWebhooks }) => {
 
 const RequestViewer = ({ requestDetail }) => {
   return (
-      <Request payloadData={requestDetail} />
+      <Request payloadData={requestDetail} reqInfo={{'test': 'test'}} />
   )
 }
 
