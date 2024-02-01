@@ -75,6 +75,7 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
 }
 
 const RequestNav = ({ webhooks, handleRequestInfoClick }) => {
+  console.log(webhooks)
   return (
     <div className="btn-group-vertical float-left">
       <ButtonGroup vertical>
@@ -121,7 +122,7 @@ const App = () => {
 
   return (
     <div style={{padding: 0, height: '100vh', width: '100vw', position: 'fixed'}}>
-      <Stack style={{padding: 0, height: '100%', background: 'grey'}}>
+      <Stack style={{padding: 0, height: '100%'}}>
         <Header />
         <Router>
           <Routes>
