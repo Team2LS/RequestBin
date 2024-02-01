@@ -10,6 +10,7 @@ import requestService from '../services/requestService';
 import { Button, Stack, Container, ButtonGroup } from 'react-bootstrap';
 import WebhookInfo from '../components/WebhookInfo';
 import Request from '../components/Request';
+import localBins from '../services/sessionPersistence'
 
 type JSONPrimitive = string | number | boolean | JSONObject | null | undefined;
 type JSONObject = { [key: string]: JSONPrimitive } | JSONObject[];
@@ -21,7 +22,8 @@ const NoBin = ({ setBinId }) => {
     requestService
       .getNewBin()
       .then(data => {
-        setBinId(data)
+        setBinId(data);
+        localBins.saveBinId(data);
         navigate(`/${String(data)}`);
       })
   }
@@ -37,7 +39,6 @@ const NoBin = ({ setBinId }) => {
 
 const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, setBinId, binId}) => {
   const newBinId = useParams().binId;
-
   const [reqInfo, setReqInfo] = useState(null);
 
   useEffect(() => {
@@ -75,7 +76,6 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
 }
 
 const RequestNav = ({ webhooks, handleRequestInfoClick }) => {
-  console.log(webhooks)
   return (
     <div className="btn-group-vertical float-left">
       <ButtonGroup vertical>
@@ -100,25 +100,17 @@ const Header = () => {
 const BinNav = ({ binId, refreshList, setWebhooks }) => {
   return (
     <Stack direction='horizontal' style={{background: 'chartreuse'}}>
-      <h2>Your endpoint is {`${binId}.requestshithole.com`}</h2>
+      <h2>Your endpoint is {`https://${binId}.x.requestshithole.com`}</h2>
       <Button className='ms-auto' onClick={() => refreshList(setWebhooks, binId)}>Refresh List</Button>
     </Stack>
   )
 }
 
-const RequestViewer = ({ requestDetail }) => {
-  return (
-      <Request payloadData={requestDetail} reqInfo={{'test': 'test'}} />
-  )
-}
-
-
-
 const App = () => {
+  const [allBins, setAllBins] = useState(localBins.getSavedBinIds());
   const [binId, setBinId] = useState("");
   const [webhooks, setWebhooks] = useState([]);
   const [requestDetail, setRequestDetail] = useState("");
-
 
   return (
     <div style={{padding: 0, height: '100vh', width: '100vw', position: 'fixed'}}>
@@ -126,6 +118,9 @@ const App = () => {
         <Header />
         <Router>
           <Routes>
+            {/* { (allBins.length > 0) && // TODO, this is a route for the baseURL but while there are local bins saved
+              <Route path='/' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} setBinId={setBinId} binId={binId}/>} />
+            } */}
             <Route path='/' element={<NoBin setBinId={setBinId}/>} />
             <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} setBinId={setBinId} binId={binId}/>} />
           </Routes>
@@ -135,4 +130,4 @@ const App = () => {
   )
 }
 
-export default App
+export default App;
