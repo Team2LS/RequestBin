@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
-  Routes, 
+  Routes,
   Route,
   useNavigate,
   useParams,
@@ -11,6 +11,8 @@ import { Button, Stack, Container, ButtonGroup } from 'react-bootstrap';
 import WebhookInfo from '../components/WebhookInfo';
 import Request from '../components/Request';
 
+type JSONPrimitive = string | number | boolean | JSONObject | null | undefined;
+type JSONObject = { [key: string]: JSONPrimitive } | JSONObject[];
 
 const NoBin = ({ setBinId }) => {
   const navigate = useNavigate();
@@ -21,7 +23,7 @@ const NoBin = ({ setBinId }) => {
       .then(data => {
         setBinId(data)
         navigate(`/${String(data)}`);
-      })   
+      })
   }
 
   return (
@@ -36,6 +38,8 @@ const NoBin = ({ setBinId }) => {
 const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, setBinId, binId}) => {
   const newBinId = useParams().binId;
 
+  const [reqInfo, setReqInfo] = useState(null);
+
   useEffect(() => {
     setBinId(newBinId);
 
@@ -48,22 +52,23 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
 
   const refreshList = (setWebhooks, binId) => {
     requestService
-    .getRequestsByBinId(binId)
-    .then(setWebhooks)
+      .getRequestsByBinId(binId)
+      .then(setWebhooks)
   }
 
-  const handleRequestInfoClick = (mongoId: string): void => {
+  const handleRequestInfoClick = (webhook): void => {
     requestService
-      .getPayloadByMongoId(mongoId)
-      .then(data => setRequestDetail(JSON.stringify(data, null, 2)))
+      .getPayloadByMongoId(webhook["mongo_id"])
+      .then(setRequestDetail)
+      .then(() => setReqInfo(webhook))
   };
 
   return (
     <>
       <BinNav binId={binId} setWebhooks={setWebhooks} refreshList={refreshList}/>
-      <Stack direction='horizontal'>
+      <Stack className="overflow-auto" direction='horizontal'>
         <RequestNav webhooks={webhooks} handleRequestInfoClick={handleRequestInfoClick}/>
-        <RequestViewer requestDetail={requestDetail}/>
+        <Request reqInfo={reqInfo} reqPayload={requestDetail}/>
       </Stack>
     </>
   )
@@ -73,9 +78,9 @@ const RequestNav = ({ webhooks, handleRequestInfoClick }) => {
   return (
     <div className="btn-group-vertical float-left">
       <ButtonGroup vertical>
-        {webhooks.map(webhooks =>
-          <Button key={webhooks["id"]} type="button" className="btn btn-outline-dark" onClick={() => handleRequestInfoClick(webhooks["mongo_id"])}>
-            <WebhookInfo request_method={webhooks["http_method"]} http_path={webhooks["http_path"]}/>
+        {webhooks.map(webhook =>
+          <Button key={webhook['id']} type="button" className="btn btn-outline-dark" onClick={() => handleRequestInfoClick(webhook)}>
+            <WebhookInfo request_method={webhook["http_method"]} http_path={webhook["http_path"]}/>
           </Button>
         )}
       </ButtonGroup>
@@ -100,19 +105,11 @@ const BinNav = ({ binId, refreshList, setWebhooks }) => {
   )
 }
 
-const RequestViewer = ({ requestDetail }) => {
-  return (
-      <Request payloadData={requestDetail} />
-  )
-}
-
-
-
 const App = () => {
   const [binId, setBinId] = useState("");
   const [webhooks, setWebhooks] = useState([]);
   const [requestDetail, setRequestDetail] = useState("");
-  
+
 
   return (
     <div style={{padding: 0, height: '100vh', width: '100vw', position: 'fixed'}}>
