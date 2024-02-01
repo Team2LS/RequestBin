@@ -27,13 +27,16 @@ async function saveRequest(mongoId: string, binId: number, http_method: string, 
   const client = new Client(CONNECTION)
   await client.connect()
 
-  await client.query("INSERT INTO requests (mongo_id, bin_id, http_method, http_path) VALUES ($1, $2, $3, $4);", [mongoId, binId, http_method, http_path])
+  const result = await client.query("INSERT INTO requests (mongo_id, bin_id, http_method, http_path) VALUES ($1, $2, $3, $4);", [mongoId, binId, http_method, http_path])
   await client.end()
+
+  return result
 }
 
 async function createBin(urlPath: string) {
   const client = new Client(CONNECTION)
   await client.connect()
+
   await client.query("INSERT INTO bins (url_path) VALUES ($1);", [urlPath])
   await client.end()
 }
