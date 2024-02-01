@@ -7,7 +7,7 @@ import {
   useParams,
 } from 'react-router-dom'
 import requestService from '../services/requestService';
-import { Button, Stack, Container } from 'react-bootstrap';
+import { Button, Stack, Container, ButtonGroup } from 'react-bootstrap';
 import WebhookInfo from '../components/WebhookInfo';
 import Request from '../components/Request';
 
@@ -63,7 +63,7 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
       <BinNav binId={binId} setWebhooks={setWebhooks} refreshList={refreshList}/>
       <Stack direction='horizontal'>
         <RequestNav webhooks={webhooks} handleRequestInfoClick={handleRequestInfoClick}/>
-        <RequestViewer requestDetail={requestDetail} />
+        <RequestViewer requestDetail={requestDetail}/>
       </Stack>
     </>
   )
@@ -72,11 +72,13 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
 const RequestNav = ({ webhooks, handleRequestInfoClick }) => {
   return (
     <div className="btn-group-vertical float-left">
-      {webhooks.map(webhooks =>
-        <button key={webhooks["id"]} type="button" className="btn btn-outline-dark" onClick={() => handleRequestInfoClick(webhooks["mongo_id"])}>
-          <WebhookInfo request_method={webhooks["http_method"]} http_path={webhooks["http_path"]}/>
-        </button>
-      )}
+      <ButtonGroup vertical>
+        {webhooks.map(webhooks =>
+          <Button key={webhooks["id"]} type="button" className="btn btn-outline-dark" onClick={() => handleRequestInfoClick(webhooks["mongo_id"])}>
+            <WebhookInfo request_method={webhooks["http_method"]} http_path={webhooks["http_path"]}/>
+          </Button>
+        )}
+      </ButtonGroup>
     </div>
   )
 }
@@ -98,24 +100,13 @@ const BinNav = ({ binId, refreshList, setWebhooks }) => {
   )
 }
 
-const Requests = () => {
-  return (
-    <Stack gap={0} direction='horizontal' style={{background: 'yellow'}}>
-      <RequestNav />
-      <RequestViewer style={{background: 'purple'}}/>
-    </Stack>
-  )
-}
-
-
-
 const RequestViewer = ({ requestDetail }) => {
   return (
-    <div className="float-end">
       <Request payloadData={requestDetail} />
-    </div>
   )
 }
+
+
 
 const App = () => {
   const [binId, setBinId] = useState("");
