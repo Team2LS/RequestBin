@@ -6,8 +6,8 @@ const Payload = mongoose.model('Payload', payloadSchema);
 mongoose.connect('mongodb://127.0.0.1/rhh')
 const db = mongoose.connection
 
-async function savePayload(json: Object) {
-  const payload = new Payload({"payloadData": json})
+async function savePayload(req: any) {
+  const payload = new Payload({"payloadData": req.body, "headers": req.headers})
 
   return payload.save().then((result) => {
     console.log('payload saved!')
