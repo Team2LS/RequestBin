@@ -7,7 +7,7 @@ import {
   useParams,
 } from 'react-router-dom'
 import requestService from '../services/requestService';
-import { Button } from 'react-bootstrap';
+import { Button, Stack, Container } from 'react-bootstrap';
 import WebhookInfo from '../components/WebhookInfo';
 import Request from '../components/Request';
 
@@ -78,18 +78,69 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
   )
 }
 
+const Header = () => {
+  return (
+    <Stack direction='horizontal' style={{background: 'blue', color: 'white'}}>
+      <p>Requests Hit Hole</p>
+    </Stack>
+  )
+}
+
+const BinNav = () => {
+  return (
+    <Stack direction='horizontal' style={{background: 'green'}}>
+      <h2>Your endpoint is ASDFASDFASDF</h2>
+      <h4 className='ms-auto'>Refresh</h4>
+    </Stack>
+  )
+}
+
+const Requests = () => {
+  return (
+    <Stack gap={0} direction='horizontal' style={{background: 'yellow'}}>
+      <RequestNav />
+      <RequestViewer style={{background: 'purple'}}/>
+    </Stack>
+  )
+}
+
+const RequestNav = () => {
+  return (
+    <ul>
+      <li>Request 1</li>
+      <li>Request 2</li>
+      <li>Request 3</li>
+    </ul>
+  )
+}
+
+const RequestViewer = () => {
+  return (
+    <p>All the data</p>
+  )
+}
+
+const Main = () => {
+  return (
+    // <div style={{ width: '100vw', height: '100vh', margin: 0, padding: 0}>
+      <Stack style={{padding: 0, height: '100%', background: 'purple'}}>
+        <Header />
+        <BinNav />
+        <Requests />
+      </Stack>
+    // </div>
+  )
+}
+
 const App = () => {
   const [binId, setBinId] = useState("");
   const [webhooks, setWebhooks] = useState([]);
   const [requestDetail, setRequestDetail] = useState("");
   
   return (
-    <Router>
-      <Routes>
-        <Route path='/' element={<NoBin setBinId={setBinId}/>} />
-        <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} setBinId={setBinId} binId={binId}/>} />
-      </Routes>
-    </Router>
+    <div style={{padding: 0, height: '100vh', width: '100vw', position: 'fixed'}}>
+      <Main />
+    </div>
   )
 }
 
