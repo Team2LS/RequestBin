@@ -7,7 +7,6 @@ mongoose.connect('mongodb://127.0.0.1/rhh')
 const db = mongoose.connection
 
 async function savePayload(req: any) {
-  console.log(req.headers);
   const payload = new Payload({"payloadData": req.body, "headers": req.headers})
 
   return payload.save().then((result) => {
@@ -18,7 +17,6 @@ async function savePayload(req: any) {
 
 async function getPayloadById(id: string) {
   const result = await Payload.findById(id)
-  console.log(result)
   if (result === null) { return null }
 
   return {
