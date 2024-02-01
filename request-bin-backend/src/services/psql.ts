@@ -2,11 +2,10 @@ import * as pg from 'pg';
 
 const Client = pg.Client;
 
-const CONNECTION = { 
-  host: "/var/run/postgresql",
-  port: 5432,
-  user: "emargetis",
-  database: "rhh"
+const CONNECTION = {
+  user: "postgres",
+  password: "myPassword",
+  database: "request-bin"
 };
 
 async function getBinId(urlPath: string) {

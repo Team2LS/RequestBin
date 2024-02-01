@@ -1,33 +1,34 @@
 import { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
-  Routes, 
+  Routes,
   Route,
   useNavigate,
   useParams,
 } from 'react-router-dom'
 import requestService from '../services/requestService';
-import { Button } from 'react-bootstrap';
+import { Button, Stack, Container, ButtonGroup } from 'react-bootstrap';
 import WebhookInfo from '../components/WebhookInfo';
 import Request from '../components/Request';
 
+type JSONPrimitive = string | number | boolean | JSONObject | null | undefined;
+type JSONObject = { [key: string]: JSONPrimitive } | JSONObject[];
 
 const NoBin = ({ setBinId }) => {
   const navigate = useNavigate();
 
-  const createNewBin = (setBinId) => {
+  const createNewBin = () => {
     requestService
       .getNewBin()
       .then(data => {
         setBinId(data)
         navigate(`/${String(data)}`);
-      })   
+      })
   }
 
   return (
     <>
-      <h1>Requests Hit Hole</h1>
-      <div className="float-end"><Button onClick={() => createNewBin(setBinId)}>New Requestbin</Button></div>
+      <div className="float-end"><Button onClick={() => createNewBin(setBinId)}>New Hole</Button></div>
       <br></br>
       <p>Create a bin to get started</p>
     </>
@@ -36,6 +37,8 @@ const NoBin = ({ setBinId }) => {
 
 const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, setBinId, binId}) => {
   const newBinId = useParams().binId;
+
+  const [reqInfo, setReqInfo] = useState(null);
 
   useEffect(() => {
     setBinId(newBinId);
@@ -49,47 +52,86 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
 
   const refreshList = (setWebhooks, binId) => {
     requestService
-    .getRequestsByBinId(binId)
-    .then(setWebhooks)
+      .getRequestsByBinId(binId)
+      .then(setWebhooks)
   }
 
-  const handleRequestInfoClick = (mongoId: string): void => {
+  const handleRequestInfoClick = (webhook): void => {
     requestService
-      .getPayloadByMongoId(mongoId)
-      .then(data => setRequestDetail(JSON.stringify(data, null, 2)))
+      .getPayloadByMongoId(webhook["mongo_id"])
+      .then(setRequestDetail)
+      .then(() => setReqInfo(webhook))
   };
 
   return (
     <>
-      <h1>Requests Hit Hole</h1>
-      <div className="float-end"><Button onClick={() => refreshList(setWebhooks, binId)}>Refresh List</Button></div><br></br>
-      <h2>You endpoint is {`${newBinId}.requestshithole.com`}</h2><br></br>
-      <div className="btn-group-vertical float-left">
-          {webhooks.map(webhooks =>
-            <button key={webhooks["id"]} type="button" className="btn btn-outline-dark" onClick={() => handleRequestInfoClick(webhooks["mongo_id"])}>
-              <WebhookInfo request_method={webhooks["http_method"]} http_path={webhooks["http_path"]}/>
-            </button>
-          )}
-      </div>
-      <div className="float-end">
-        <Request payloadData={requestDetail} />
-      </div>
+      <BinNav binId={binId} setWebhooks={setWebhooks} refreshList={refreshList}/>
+      <Stack className="overflow-auto" direction='horizontal'>
+        <RequestNav webhooks={webhooks} handleRequestInfoClick={handleRequestInfoClick}/>
+        <Request reqInfo={reqInfo} reqPayload={requestDetail}/>
+      </Stack>
     </>
   )
 }
+
+const RequestNav = ({ webhooks, handleRequestInfoClick }) => {
+  console.log(webhooks)
+  return (
+    <div className="btn-group-vertical float-left">
+      <ButtonGroup vertical>
+        {webhooks.map(webhook =>
+          <Button key={webhook['id']} type="button" className="btn btn-outline-dark" onClick={() => handleRequestInfoClick(webhook)}>
+            <WebhookInfo request_method={webhook["http_method"]} http_path={webhook["http_path"]}/>
+          </Button>
+        )}
+      </ButtonGroup>
+    </div>
+  )
+}
+
+const Header = () => {
+  return (
+    <Stack direction='horizontal' style={{background: 'purple', color: 'white', padding: 5}}>
+      <p>Requests Hit Hole</p>
+    </Stack>
+  )
+}
+
+const BinNav = ({ binId, refreshList, setWebhooks }) => {
+  return (
+    <Stack direction='horizontal' style={{background: 'chartreuse'}}>
+      <h2>Your endpoint is {`${binId}.requestshithole.com`}</h2>
+      <Button className='ms-auto' onClick={() => refreshList(setWebhooks, binId)}>Refresh List</Button>
+    </Stack>
+  )
+}
+
+const RequestViewer = ({ requestDetail }) => {
+  return (
+      <Request payloadData={requestDetail} reqInfo={{'test': 'test'}} />
+  )
+}
+
+
 
 const App = () => {
   const [binId, setBinId] = useState("");
   const [webhooks, setWebhooks] = useState([]);
   const [requestDetail, setRequestDetail] = useState("");
-  
+
+
   return (
-    <Router>
-      <Routes>
-        <Route path='/' element={<NoBin setBinId={setBinId}/>} />
-        <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} setBinId={setBinId} binId={binId}/>} />
-      </Routes>
-    </Router>
+    <div style={{padding: 0, height: '100vh', width: '100vw', position: 'fixed'}}>
+      <Stack style={{padding: 0, height: '100%'}}>
+        <Header />
+        <Router>
+          <Routes>
+            <Route path='/' element={<NoBin setBinId={setBinId}/>} />
+            <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} setBinId={setBinId} binId={binId}/>} />
+          </Routes>
+        </Router>
+      </Stack>
+    </div>
   )
 }
 
