@@ -44,8 +44,8 @@ const Request: FC<IMyProps> = (props: IMyProps) => {
 
   const [navTabStatus, setNavTabStatus] = useState(initialNavTabStatus);
 
-  const raw = JSON.stringify(props.reqPayload, null, 2);
-  const pretty = beautify(props.reqPayload, null, 2);
+  const raw = JSON.stringify(props.reqPayload['payload'], null, 2);
+  const pretty = beautify(props.reqPayload['payload'], null, 2);
 
   return (
     <Stack className="overflow-auto" style={{height: '85vh', width: '60vw', position: 'relative'}}>
@@ -96,7 +96,7 @@ const Request: FC<IMyProps> = (props: IMyProps) => {
                     </SyntaxHighlighter>
                   </p>
                 : <Fragment>
-                    <JsonView data={props.reqPayload} shouldExpandNode={allExpanded} style={defaultStyles} />
+                    <JsonView data={props.reqPayload['payload']} shouldExpandNode={allExpanded} style={defaultStyles} />
                   </Fragment>
           }
         </div>
