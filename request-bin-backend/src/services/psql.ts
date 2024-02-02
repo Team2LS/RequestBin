@@ -3,8 +3,8 @@ import * as pg from 'pg';
 const Client = pg.Client;
 
 const CONNECTION = {
-  user: "postgres",
-  password: "myPassword",
+  // user: "postgres",
+  // password: "myPassword",
   database: "request-bin"
 };
 

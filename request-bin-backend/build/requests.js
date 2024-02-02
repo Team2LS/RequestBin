@@ -36,13 +36,17 @@ const express = __importStar(require("express"));
 const requestsRouter = express.Router();
 const mongodb_1 = require("./services/mongodb");
 const psql_1 = require("./services/psql");
+const helpers_1 = require("./helpers");
+// get all payloads from mongoDB
+// TODO Delete, used for testing purposes
 requestsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const requests = (0, mongodb_1.getAllPayloads)();
+    const requests = yield (0, mongodb_1.getAllPayloads)();
     res.json(requests);
 }));
-requestsRouter.get('/payload/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// get a payload from mongoDB
+requestsRouter.get('/api/payload/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const payload = (0, mongodb_1.getPayloadById)(id);
+    const payload = yield (0, mongodb_1.getPayloadById)(id);
     if (payload === null) {
         res.status(400).send();
     }
@@ -50,6 +54,7 @@ requestsRouter.get('/payload/:id', (req, res) => __awaiter(void 0, void 0, void 
         res.json(payload);
     }
 }));
+// saves payload to mongoDB and request to postgres
 requestsRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let urlPath;
     if (req.headers.host === undefined) {
@@ -64,7 +69,7 @@ requestsRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(400).send();
     }
     if (binId) {
-        const mongoId = yield (0, mongodb_1.savePayload)(req.body);
+        const mongoId = yield (0, mongodb_1.savePayload)(req);
         yield (0, psql_1.saveRequest)(mongoId, binId, "POST", urlPath);
         console.log("Created new webhook entry", urlPath, binId, mongoId);
         res.status(202).send();
@@ -72,5 +77,26 @@ requestsRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, functio
     else {
         res.status(400).send();
     }
+}));
+// create new bin in postgres
+requestsRouter.post('/api/bin', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const urlPath = (0, helpers_1.makeUrlPath)(12);
+    try {
+        yield (0, psql_1.createBin)(urlPath);
+    }
+    catch (_a) {
+        console.log("oh no the bin wasn't made");
+        res.status(400).send();
+    }
+    res.send(urlPath);
+}));
+// get all bins from postgres
+requestsRouter.get('/api/bins', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.send(yield (0, psql_1.getAllBins)());
+}));
+// get all requests for a bin
+requestsRouter.get('/api/bin/:urlPath', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const urlPath = req.params.urlPath;
+    res.send(yield (0, psql_1.getAllRequestFromBin)(urlPath));
 }));
 module.exports = requestsRouter;
