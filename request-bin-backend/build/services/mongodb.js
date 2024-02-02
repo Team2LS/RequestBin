@@ -34,13 +34,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllPayloads = exports.getPayloadById = exports.savePayload = void 0;
 const mongoose = __importStar(require("mongoose"));
-const payloadSchema = new mongoose.Schema({ payloadData: {} });
+const payloadSchema = new mongoose.Schema({ payloadData: {}, headers: {} });
 const Payload = mongoose.model('Payload', payloadSchema);
 mongoose.connect('mongodb://127.0.0.1/rhh');
 const db = mongoose.connection;
-function savePayload(json) {
+function savePayload(req) {
     return __awaiter(this, void 0, void 0, function* () {
-        const payload = new Payload({ "payloadData": json });
+        const payload = new Payload({ "payloadData": req.body, "headers": req.headers });
         return payload.save().then((result) => {
             console.log('payload saved!');
             return result._id.toString();
@@ -50,11 +50,14 @@ function savePayload(json) {
 exports.savePayload = savePayload;
 function getPayloadById(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const result = yield Payload.findById(new mongoose.Types.ObjectId(id));
+        const result = yield Payload.findById(id);
         if (result === null) {
             return null;
         }
-        return result.payloadData;
+        return {
+            headers: result.headers,
+            payload: result.payloadData
+        };
     });
 }
 exports.getPayloadById = getPayloadById;

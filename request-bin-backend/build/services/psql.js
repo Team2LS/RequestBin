@@ -32,14 +32,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveRequest = exports.getBinId = void 0;
+exports.getAllRequestFromBin = exports.getAllBins = exports.createBin = exports.saveRequest = exports.getBinId = void 0;
 const pg = __importStar(require("pg"));
 const Client = pg.Client;
+const CONNECTION = {
+    user: "postgres",
+    password: "myPassword",
+    database: "request-bin"
+};
 function getBinId(urlPath) {
     return __awaiter(this, void 0, void 0, function* () {
-        const client = new Client({
-            "database": "rhh",
-        });
+        const client = new Client(CONNECTION);
         yield client.connect();
         const result = yield client.query("SELECT * FROM bins WHERE url_path = $1", [urlPath]);
         yield client.end();
@@ -54,11 +57,39 @@ function getBinId(urlPath) {
 exports.getBinId = getBinId;
 function saveRequest(mongoId, binId, http_method, http_path) {
     return __awaiter(this, void 0, void 0, function* () {
-        const client = new Client({
-            "database": "rhh",
-        });
+        const client = new Client(CONNECTION);
         yield client.connect();
-        client.query("INSERT INTO requests (mongo_id, bin_id, http_method, http_path) VALUES ($1, $2, $3, $4)", [mongoId, binId, http_method, http_path]);
+        yield client.query("INSERT INTO requests (mongo_id, bin_id, http_method, http_path) VALUES ($1, $2, $3, $4);", [mongoId, binId, http_method, http_path]);
+        yield client.end();
     });
 }
 exports.saveRequest = saveRequest;
+function createBin(urlPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const client = new Client(CONNECTION);
+        yield client.connect();
+        yield client.query("INSERT INTO bins (url_path) VALUES ($1);", [urlPath]);
+        yield client.end();
+    });
+}
+exports.createBin = createBin;
+function getAllBins() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const client = new Client(CONNECTION);
+        yield client.connect();
+        let result = (yield client.query("SELECT * FROM bins;")).rows;
+        yield client.end();
+        return result;
+    });
+}
+exports.getAllBins = getAllBins;
+function getAllRequestFromBin(urlPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const client = new Client(CONNECTION);
+        yield client.connect();
+        let result = (yield client.query("SELECT * FROM bins JOIN requests ON bins.id = requests.bin_id WHERE bins.url_path = $1;", [urlPath])).rows;
+        yield client.end();
+        return result;
+    });
+}
+exports.getAllRequestFromBin = getAllRequestFromBin;
