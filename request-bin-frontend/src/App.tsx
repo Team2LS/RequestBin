@@ -99,7 +99,7 @@ const BinNav = ({ binId, refreshList, setWebhooks, allBins }) => {
     <Stack direction='horizontal' style={{background: 'green'}}>
       <Dropdown>
         <Dropdown.Toggle variant='success' id='dropdown-basic'>
-          Hit Holes
+          Holes
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {allBins.map(bin => {
