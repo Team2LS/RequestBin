@@ -36,8 +36,7 @@ exports.getAllPayloads = exports.getPayloadById = exports.savePayload = void 0;
 const mongoose = __importStar(require("mongoose"));
 const payloadSchema = new mongoose.Schema({ payloadData: {}, headers: {} });
 const Payload = mongoose.model('Payload', payloadSchema);
-mongoose.connect('mongodb://127.0.0.1/rhh');
-const db = mongoose.connection;
+mongoose.connect('mongodb://127.0.0.1:27017/rhh?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.3');
 function savePayload(req) {
     return __awaiter(this, void 0, void 0, function* () {
         const payload = new Payload({ "payloadData": req.body, "headers": req.headers });

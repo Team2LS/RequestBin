@@ -37,70 +37,76 @@ const requestsRouter = express.Router();
 const mongodb_1 = require("./services/mongodb");
 const psql_1 = require("./services/psql");
 const helpers_1 = require("./helpers");
-// get all payloads from mongoDB
-// TODO Delete, used for testing purposes
-requestsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // const requests = await getAllPayloads()
-    console.log(req);
-    res.json(req);
-}));
+const BIN_URL_PATH_LENGTH = 12;
 // get a payload from mongoDB
 requestsRouter.get('/api/payload/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const payload = yield (0, mongodb_1.getPayloadById)(id);
-    if (payload === null) {
-        res.status(400).send();
+    let payload = null;
+    try {
+        payload = yield (0, mongodb_1.getPayloadById)(id);
+        if (payload === null) {
+            throw new Error(`Error: Unable to retrieve payload with ID '${id}'`);
+        }
     }
-    else {
-        res.json(payload);
+    catch (error) {
+        if (error instanceof Error) {
+            res.status(400).send(error.message);
+        }
     }
+    res.json(payload);
 }));
 // saves payload to mongoDB and request to postgres
 requestsRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('received an endpoint', req);
-    let urlPath;
-    if (req.headers.host === undefined) {
-        console.log('host header is undefined');
-        res.status(400).send();
-        return null;
-    }
-    else {
-        console.log('setting url path');
-        urlPath = req.headers.host.split('.')[0];
-    }
-    console.log('(AFTER IF BRANCH) The url path is:', urlPath);
-    const binId = yield (0, psql_1.getBinId)(urlPath);
-    console.log('The bin id is: ', binId);
-    // if (urlPath.split('.')[0] == undefined) {
-    //   res.status(400).send()
-    // }
-    if (binId) {
+    try {
+        if (!req || !req.headers || !req.headers.host) {
+            throw new Error(`Invalid or missing host name`);
+        }
+        const urlPath = req.headers.host.split('.')[0];
+        const binId = yield (0, psql_1.getBinId)(urlPath);
+        const req_method = req.method ? req.method : "";
+        if (!binId) {
+            throw new Error(`Invalid bin URL path ${urlPath}`);
+        }
         const mongoId = yield (0, mongodb_1.savePayload)(req);
-        console.log('The mongoID is', mongoId);
-        yield (0, psql_1.saveRequest)(mongoId, binId, "POST", urlPath);
-        console.log("Created new webhook entry", urlPath, binId, mongoId);
-        res.status(202).send();
+        yield (0, psql_1.saveRequest)(mongoId, binId, req_method, urlPath);
+        console.log(`Created new webhook entry: [URL path]:${urlPath} [Bin ID]:${binId} [Mongo ID]:${mongoId}`);
+        res.status(202).send({ success: true });
     }
-    else {
-        console.log('DENIED');
-        res.status(400).send();
+    catch (error) {
+        if (error instanceof Error) {
+            res.status(400).send(error.message);
+        }
     }
 }));
 // create new bin in postgres
 requestsRouter.post('/api/bin', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const urlPath = (0, helpers_1.makeUrlPath)(12);
+    let urlPath = (0, helpers_1.makeUrlPath)(BIN_URL_PATH_LENGTH);
     try {
+        const allBins = yield (0, psql_1.getAllBins)();
+        const allBinPaths = allBins.flatMap(({ url_path }) => url_path);
+        while (allBinPaths.includes(urlPath)) {
+            urlPath = (0, helpers_1.makeUrlPath)(BIN_URL_PATH_LENGTH);
+        }
         yield (0, psql_1.createBin)(urlPath);
     }
-    catch (_a) {
-        console.log("oh no the bin wasn't made");
-        res.status(400).send();
+    catch (error) {
+        if (error instanceof Error) {
+            res.status(400).send(error.message);
+        }
     }
     res.send(urlPath);
 }));
 // get all bins from postgres
 requestsRouter.get('/api/bins', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.send(yield (0, psql_1.getAllBins)());
+    try {
+        const allBins = yield (0, psql_1.getAllBins)();
+        res.status(200).send(allBins);
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            res.status(400).send(error.message);
+        }
+    }
 }));
 // get all requests for a bin
 requestsRouter.get('/api/bin/:urlPath', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
