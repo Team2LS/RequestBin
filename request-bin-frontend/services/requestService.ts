@@ -1,4 +1,4 @@
-const baseUrl = 'http://requestshithole.com';
+const baseUrl = 'https://requestshithole.com';
 
 const getRequestsByBinId = (binId: string) => {
   return fetch(baseUrl + "/api/bin/" + binId)
