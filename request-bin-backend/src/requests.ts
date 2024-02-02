@@ -3,79 +3,89 @@ const requestsRouter = express.Router()
 import { savePayload, getPayloadById, getAllPayloads } from './services/mongodb'
 import { getBinId, saveRequest, createBin, getAllBins, getAllRequestFromBin } from './services/psql'
 import { makeUrlPath } from './helpers';
-import { mongo } from 'mongoose';
 
-// get all payloads from mongoDB
-// TODO Delete, used for testing purposes
-requestsRouter.get('/', async(req, res) => {
-  // const requests = await getAllPayloads()
-  console.log(req);
-  res.json(req)
-})
+const BIN_URL_PATH_LENGTH = 12
 
 // get a payload from mongoDB
 requestsRouter.get('/api/payload/:id', async(req, res) => {
   const id = req.params.id
-  const payload = await getPayloadById(id)
+  let payload = null
 
-  if (payload === null) {
-    res.status(400).send()
-  } else {
-    res.json(payload)
+  try {
+    payload = await getPayloadById(id)
+
+    if (payload === null) {
+      throw new Error(`Error: Unable to retrieve payload with ID '${id}'`)
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(400).send(error.message)
+    }
   }
+
+  res.json(payload)
 })
 
 // saves payload to mongoDB and request to postgres
 requestsRouter.post('/', async(req, res) => {
-  console.log('received an endpoint', req);
-  let urlPath
+  try {
+    if (!req || !req.headers || !req.headers.host) {
+      throw new Error(`Invalid or missing host name`)
+    }
 
-  if (req.headers.host === undefined) {
-    console.log('host header is undefined')
-    res.status(400).send()
-    return null
-  } else {
-    console.log('setting url path')
-    urlPath = req.headers.host.split('.')[0]
-  }
+    const urlPath = req.headers.host.split('.')[0]
+    const binId = await getBinId(urlPath)
+    const req_method = req.method ? req.method : ""
 
-  console.log('(AFTER IF BRANCH) The url path is:', urlPath);
+    if (!binId) {
+      throw new Error(`Invalid bin URL path ${urlPath}`)
+    }
 
-  const binId = await getBinId(urlPath)
-
-  console.log('The bin id is: ', binId)
-
-  // if (urlPath.split('.')[0] == undefined) {
-  //   res.status(400).send()
-  // }
-
-  if (binId) {
     const mongoId = await savePayload(req)
-    console.log('The mongoID is', mongoId)
-    await saveRequest(mongoId, binId, "POST", urlPath)
-    console.log("Created new webhook entry", urlPath, binId, mongoId)
-    res.status(202).send()
-  } else {
-    console.log('DENIED')
-    res.status(400).send()
+    await saveRequest(mongoId, binId, req_method, urlPath)
+
+    console.log(`Created new webhook entry: [URL path]:${urlPath} [Bin ID]:${binId} [Mongo ID]:${mongoId}`)
+    res.status(202).send({ success: true })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(400).send(error.message)
+    }
   }
 })
 
 // create new bin in postgres
 requestsRouter.post('/api/bin', async(req, res) => {
-  const urlPath = makeUrlPath(12)
+  let urlPath = makeUrlPath(BIN_URL_PATH_LENGTH)
+
   try {
+    const allBins = await getAllBins();
+    const allBinPaths = allBins.flatMap(({url_path}) => url_path);
+
+    while (allBinPaths.includes(urlPath)) {
+      urlPath = makeUrlPath(BIN_URL_PATH_LENGTH);
+    }
+
     await createBin(urlPath)
-  } catch {
-    console.log("oh no the bin wasn't made")
-    res.status(400).send()
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send(error.message)
+    }
   }
+
   res.send(urlPath)
 })
 
 // get all bins from postgres
 requestsRouter.get('/api/bins', async(req, res) => {
-  res.send(await getAllBins())
+  try {
+    const allBins = await getAllBins()
+
+    res.status(200).send(allBins)
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send(error.message)
+    }
+  }
 })
 
 // get all requests for a bin
@@ -84,6 +94,5 @@ requestsRouter.get('/api/bin/:urlPath', async(req, res) => {
 
   res.send(await getAllRequestFromBin(urlPath))
 })
-
 
 module.exports = requestsRouter

@@ -12,6 +12,7 @@ type JSONPrimitive = string | number | boolean | JSONObject | null | undefined;
 type JSONObject = { [key: string]: JSONPrimitive } | JSONObject[];
 
 interface IMyProps {
+  noWebhooks: boolean,
   reqInfo: JSONObject,
   reqPayload: JSONObject
 }
@@ -20,7 +21,16 @@ SyntaxHighlighter.registerLanguage('json', json);
 SyntaxHighlighter.registerLanguage('http', http);
 
 const Request: FC<IMyProps> = (props: IMyProps) => {
-  if (!props.reqInfo || !props.reqPayload) {
+  console.log(props.noWebhooks);
+  if (props.noWebhooks) {
+    return (
+      <Stack style={{height: '95vh', width: '95vw', position: 'absolute'}}>
+        <div className="card text-left">
+          Your bins don't have any requests yet!
+        </div>
+      </Stack>
+    )
+  } else if (!props.reqInfo || !props.reqPayload) {
     return (
       <Stack style={{padding: 0, height: '85vh', width: '60vw', position: 'relative'}}>
         <div className="card text-left">
