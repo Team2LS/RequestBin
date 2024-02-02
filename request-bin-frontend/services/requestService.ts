@@ -1,6 +1,3 @@
-import { useNavigate } from 'react-router-dom'
-import localBins from './sessionPersistence'
-
 const baseUrl = 'https://requestshithole.com';
 
 const getRequestsByBinId = (binId: string) => {
@@ -21,15 +18,6 @@ const getPayloadByMongoId = (mongoId: string) => {
     .then(response => response.ok ? response.json() : response.text())
     .then(data => data)
     .catch(error => console.error(error));
-}
-
-const createNewBin = () => {
-  const navigate = useNavigate();
-
-  getNewBin().then(data => {
-    localBins.saveBinId(data);
-    navigate(`/${String(data)}`);
-  })
 }
 
 export default { getRequestsByBinId, getNewBin, getPayloadByMongoId, createNewBin };
