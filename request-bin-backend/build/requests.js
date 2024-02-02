@@ -70,16 +70,19 @@ requestsRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
     console.log('(AFTER IF BRANCH) The url path is:', urlPath);
     const binId = yield (0, psql_1.getBinId)(urlPath);
-    if (urlPath.split('.')[0] == undefined) {
-        res.status(400).send();
-    }
+    console.log('The bin id is: ', binId);
+    // if (urlPath.split('.')[0] == undefined) {
+    //   res.status(400).send()
+    // }
     if (binId) {
         const mongoId = yield (0, mongodb_1.savePayload)(req);
+        console.log('The mongoID is', mongoId);
         yield (0, psql_1.saveRequest)(mongoId, binId, "POST", urlPath);
         console.log("Created new webhook entry", urlPath, binId, mongoId);
         res.status(202).send();
     }
     else {
+        console.log('DENIED');
         res.status(400).send();
     }
 }));
