@@ -107,7 +107,10 @@ const BinNav = ({ binId, refreshList, setWebhooks, allBins }) => {
           })}
         </Dropdown.Menu>
       </Dropdown>
-      <h2>Your endpoint is {`${binId}.requestshithole.com`}</h2>
+      {binId == undefined
+      ?<h2>Please select a bin from the dropdown</h2>
+      :<h2>Your endpoint is {`${binId}.requestshithole.com`}</h2>
+      }
       <Button className='ms-auto' onClick={() => refreshList(setWebhooks, binId)}>Refresh List</Button>
     </Stack>
   )
@@ -124,9 +127,9 @@ const App = () => {
         <Header />
         <Router>
           <Routes>
-            {/* { (allBins.length > 0) && // TODO, this is a route for the baseURL but while there are local bins saved
-              <Route path='/' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} setBinId={setBinId} binId={binId}/>} />
-            } */}
+            { (allBins.length > 0) && // TODO, this is a route for the baseURL but while there are local bins saved
+              <Route path='/' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} allBins={allBins}/>} />
+            }
             <Route path='/' element={<NoBin />} />
             <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail={requestDetail} setRequestDetail={setRequestDetail} allBins={allBins}/>} />
           </Routes>
