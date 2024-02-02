@@ -3,6 +3,7 @@ const requestsRouter = express.Router()
 import { savePayload, getPayloadById, getAllPayloads } from './services/mongodb'
 import { getBinId, saveRequest, createBin, getAllBins, getAllRequestFromBin } from './services/psql'
 import { makeUrlPath } from './helpers';
+import { mongo } from 'mongoose';
 
 // get all payloads from mongoDB
 // TODO Delete, used for testing purposes
@@ -42,16 +43,20 @@ requestsRouter.post('/', async(req, res) => {
 
   const binId = await getBinId(urlPath)
 
-  if (urlPath.split('.')[0] == undefined) {
-    res.status(400).send()
-  }
+  console.log('The bin id is: ', binId)
+
+  // if (urlPath.split('.')[0] == undefined) {
+  //   res.status(400).send()
+  // }
 
   if (binId) {
     const mongoId = await savePayload(req)
+    console.log('The mongoID is', mongoId)
     await saveRequest(mongoId, binId, "POST", urlPath)
     console.log("Created new webhook entry", urlPath, binId, mongoId)
     res.status(202).send()
   } else {
+    console.log('DENIED')
     res.status(400).send()
   }
 })
