@@ -40,8 +40,9 @@ const helpers_1 = require("./helpers");
 // get all payloads from mongoDB
 // TODO Delete, used for testing purposes
 requestsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const requests = yield (0, mongodb_1.getAllPayloads)();
-    res.json(requests);
+    // const requests = await getAllPayloads()
+    console.log(req);
+    res.json(req);
 }));
 // get a payload from mongoDB
 requestsRouter.get('/api/payload/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -56,6 +57,7 @@ requestsRouter.get('/api/payload/:id', (req, res) => __awaiter(void 0, void 0, v
 }));
 // saves payload to mongoDB and request to postgres
 requestsRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('received an endpoint', req);
     let urlPath;
     if (req.headers.host === undefined) {
         res.status(400).send();
