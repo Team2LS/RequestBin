@@ -7,7 +7,7 @@ import {
   useParams,
 } from 'react-router-dom'
 import requestService from '../services/requestService';
-import { Button, Stack, ButtonGroup, Dropdown } from 'react-bootstrap';
+import { Button, Card, Stack, ButtonGroup, Dropdown } from 'react-bootstrap';
 import WebhookInfo from '../components/WebhookInfo';
 import Request from '../components/Request';
 import localBins from '../services/sessionPersistence'
@@ -74,15 +74,13 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
 
 const RequestNav = ({ webhooks, handleRequestInfoClick }) => {
   return (
-    <div className="btn-group-vertical float-left">
-      <ButtonGroup vertical>
+    <Stack className="overflow-auto" style={{height: '80vh', width: '30vw', position: 'relative'}}>
         {webhooks.map(webhook =>
-          <Button key={webhook['id']} type="button" className="btn btn-outline-dark" onClick={() => handleRequestInfoClick(webhook)}>
+          <Card key={webhook['id']} type="button" className="btn btn-outline-dark" onClick={() => handleRequestInfoClick(webhook)}>
             <WebhookInfo request_method={webhook["http_method"]} http_path={webhook["http_path"]}/>
-          </Button>
+          </Card>
         )}
-      </ButtonGroup>
-    </div>
+    </Stack>
   )
 }
 
@@ -127,9 +125,9 @@ const App = () => {
         <Header />
         <Router>
           <Routes>
-            { (allBins.length > 0) && // TODO, this is a route for the baseURL but while there are local bins saved
+            {/* { (allBins.length > 0) && // TODO, this is a route for the baseURL but while there are local bins saved
               <Route path='/' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} allBins={allBins}/>} />
-            }
+            } */}
             <Route path='/' element={<NoBin />} />
             <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail={requestDetail} setRequestDetail={setRequestDetail} allBins={allBins}/>} />
           </Routes>
