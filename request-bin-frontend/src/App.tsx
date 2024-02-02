@@ -3,11 +3,10 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useNavigate,
   useParams,
 } from 'react-router-dom'
 import requestService from '../services/requestService';
-import { Button, Card, Stack, ButtonGroup, Dropdown } from 'react-bootstrap';
+import { Button, Card, Stack, Dropdown } from 'react-bootstrap';
 import WebhookInfo from '../components/WebhookInfo';
 import Request from '../components/Request';
 import localBins from '../services/sessionPersistence'
@@ -16,20 +15,9 @@ type JSONPrimitive = string | number | boolean | JSONObject | null | undefined;
 type JSONObject = { [key: string]: JSONPrimitive } | JSONObject[];
 
 const NoBin = () => {
-  const navigate = useNavigate();
-
-  const createNewBin = () => {
-    requestService
-      .getNewBin()
-      .then(data => {
-        localBins.saveBinId(data);
-        navigate(`/${String(data)}`);
-      })
-  }
-
   return (
     <>
-      <div className="float-end"><Button onClick={createNewBin}>New Hole</Button></div>
+      <div className="float-end"><Button onClick={requestService.createNewBin}>New Hole</Button></div>
       <br></br>
       <p>Create a bin to get started</p>
     </>
@@ -107,8 +95,9 @@ const BinNav = ({ binId, refreshList, setWebhooks, allBins }) => {
       </Dropdown>
       {binId == undefined
       ?<h2>Please select a bin from the dropdown</h2>
-      :<h2>Your endpoint is {`https://${binId}.x.requestshithole.com`}</h2>
+      :<h2>Your endpoint is {`http://${binId}.x.requestshithole.com`}</h2>
       }
+      <Button onClick={requestService.createNewBin}>New Hole</Button>
       <Button className='ms-auto' onClick={() => refreshList(setWebhooks, binId)}>Refresh List</Button>
     </Stack>
   )
