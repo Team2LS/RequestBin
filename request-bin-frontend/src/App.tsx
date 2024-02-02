@@ -120,8 +120,8 @@ const BinNav = ({ binId, refreshList, setWebhooks, allBins }) => {
       ?<h2>Please select a bin from the dropdown</h2>
       :<h2>Your endpoint is {`http://${binId}.x.requestshithole.com`}</h2>
       }
-      <Button onClick={createNewBin}>New Hole</Button>
-      <Button className='ms-auto' onClick={() => refreshList(setWebhooks, binId)}>Refresh List</Button>
+      <Button className='ms-auto' onClick={createNewBin}>New Hole</Button>
+      <Button onClick={() => refreshList(setWebhooks, binId)}>Refresh List</Button>
     </Stack>
   )
 }
