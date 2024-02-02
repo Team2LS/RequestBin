@@ -7,7 +7,7 @@ import {
   useParams,
 } from 'react-router-dom'
 import requestService from '../services/requestService';
-import { Button, Stack, Container, ButtonGroup } from 'react-bootstrap';
+import { Button, Stack, ButtonGroup, Dropdown } from 'react-bootstrap';
 import WebhookInfo from '../components/WebhookInfo';
 import Request from '../components/Request';
 import localBins from '../services/sessionPersistence'
@@ -36,7 +36,7 @@ const NoBin = () => {
   )
 }
 
-const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail}) => {
+const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, allBins}) => {
   const currentBinId = useParams().binId;
   const [reqInfo, setReqInfo] = useState(null);
 
@@ -63,7 +63,7 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail})
 
   return (
     <>
-      <BinNav binId={currentBinId} setWebhooks={setWebhooks} refreshList={refreshList}/>
+      <BinNav binId={currentBinId} setWebhooks={setWebhooks} refreshList={refreshList} allBins={allBins} />
       <Stack className="overflow-auto" direction='horizontal'>
         <RequestNav webhooks={webhooks} handleRequestInfoClick={handleRequestInfoClick}/>
         <Request reqInfo={reqInfo} reqPayload={requestDetail}/>
@@ -88,16 +88,26 @@ const RequestNav = ({ webhooks, handleRequestInfoClick }) => {
 
 const Header = () => {
   return (
-    <Stack direction='horizontal' style={{background: 'purple', color: 'white', padding: 5}}>
+    <Stack direction='horizontal' style={{background: 'black', color: 'white', padding: 5}}>
       <p>Requests Hit Hole</p>
     </Stack>
   )
 }
 
-const BinNav = ({ binId, refreshList, setWebhooks }) => {
+const BinNav = ({ binId, refreshList, setWebhooks, allBins }) => {
   return (
-    <Stack direction='horizontal' style={{background: 'chartreuse'}}>
-      <h2>Your endpoint is {`https://${binId}.x.requestshithole.com`}</h2>
+    <Stack direction='horizontal' style={{background: 'green'}}>
+      <Dropdown>
+        <Dropdown.Toggle variant='success' id='dropdown-basic'>
+          Hit Holes
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          {allBins.map(bin => {
+            return <Dropdown.Item href={`/${bin}`} key={bin}>{bin}</Dropdown.Item>
+          })}
+        </Dropdown.Menu>
+      </Dropdown>
+      <h2>Your endpoint is {`${binId}.requestshithole.com`}</h2>
       <Button className='ms-auto' onClick={() => refreshList(setWebhooks, binId)}>Refresh List</Button>
     </Stack>
   )
@@ -118,7 +128,7 @@ const App = () => {
               <Route path='/' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} setBinId={setBinId} binId={binId}/>} />
             } */}
             <Route path='/' element={<NoBin />} />
-            <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} />} />
+            <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail={requestDetail} setRequestDetail={setRequestDetail} allBins={allBins}/>} />
           </Routes>
         </Router>
       </Stack>
