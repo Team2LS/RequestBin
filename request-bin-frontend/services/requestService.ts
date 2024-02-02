@@ -20,4 +20,4 @@ const getPayloadByMongoId = (mongoId: string) => {
     .catch(error => console.error(error));
 }
 
-export default { getRequestsByBinId, getNewBin, getPayloadByMongoId, createNewBin };
+export default { getRequestsByBinId, getNewBin, getPayloadByMongoId };
