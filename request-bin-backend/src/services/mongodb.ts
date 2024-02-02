@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 const payloadSchema = new mongoose.Schema({ payloadData: {}, headers: {} });
 const Payload = mongoose.model('Payload', payloadSchema);
 
-mongoose.connect('mongodb://127.0.0.1/rhh')
+mongoose.connect('mongodb://127.0.0.1:27017/rhh?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.3')
 const db = mongoose.connection
 
 async function savePayload(req: any) {

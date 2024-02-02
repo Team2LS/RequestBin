@@ -66,7 +66,7 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
       <BinNav binId={currentBinId} setWebhooks={setWebhooks} refreshList={refreshList} allBins={allBins} />
       <Stack className="overflow-auto" direction='horizontal'>
         <RequestNav webhooks={webhooks} handleRequestInfoClick={handleRequestInfoClick}/>
-        <Request reqInfo={reqInfo} reqPayload={requestDetail}/>
+        <Request noWebhooks={webhooks.length === 0} reqInfo={reqInfo} reqPayload={requestDetail}/>
       </Stack>
     </>
   )
