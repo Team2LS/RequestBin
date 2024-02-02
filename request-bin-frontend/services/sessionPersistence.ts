@@ -15,16 +15,12 @@ function saveBinId(binId: string) {
   window.localStorage[key] = JSON.stringify(binIds);
 }
 
-function clearStorage() {
-  delete window.localStorage[key];
-}
-
 function invalidBin(binId: string) {
   const bins: string[] = getSavedBinIds();
   console.log(bins);
   return bins.includes(binId);
 }
 
-const localBins = {getSavedBinIds, saveBinId, clearStorage, invalidBin}
+const localBins = {getSavedBinIds, saveBinId, invalidBin}
 
 export default localBins

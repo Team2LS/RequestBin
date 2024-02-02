@@ -15,14 +15,13 @@ import localBins from '../services/sessionPersistence'
 type JSONPrimitive = string | number | boolean | JSONObject | null | undefined;
 type JSONObject = { [key: string]: JSONPrimitive } | JSONObject[];
 
-const NoBin = ({ setBinId }) => {
+const NoBin = () => {
   const navigate = useNavigate();
 
   const createNewBin = () => {
     requestService
       .getNewBin()
       .then(data => {
-        setBinId(data);
         localBins.saveBinId(data);
         navigate(`/${String(data)}`);
       })
@@ -30,30 +29,28 @@ const NoBin = ({ setBinId }) => {
 
   return (
     <>
-      <div className="float-end"><Button onClick={() => createNewBin(setBinId)}>New Hole</Button></div>
+      <div className="float-end"><Button onClick={createNewBin}>New Hole</Button></div>
       <br></br>
       <p>Create a bin to get started</p>
     </>
   )
 }
 
-const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, setBinId, binId}) => {
-  const newBinId = useParams().binId;
+const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail}) => {
+  const currentBinId = useParams().binId;
   const [reqInfo, setReqInfo] = useState(null);
 
   useEffect(() => {
-    setBinId(newBinId);
-
-    if (newBinId) {
+    if (currentBinId) {
       requestService
-        .getRequestsByBinId(newBinId)
+        .getRequestsByBinId(currentBinId)
         .then(setWebhooks)
     }
   }, []);
 
-  const refreshList = (setWebhooks, binId) => {
+  const refreshList = (setWebhooks, currentBinId) => {
     requestService
-      .getRequestsByBinId(binId)
+      .getRequestsByBinId(currentBinId)
       .then(setWebhooks)
   }
 
@@ -66,7 +63,7 @@ const SpecifiedBin = ({ webhooks, setWebhooks, requestDetail, setRequestDetail, 
 
   return (
     <>
-      <BinNav binId={binId} setWebhooks={setWebhooks} refreshList={refreshList}/>
+      <BinNav binId={currentBinId} setWebhooks={setWebhooks} refreshList={refreshList}/>
       <Stack className="overflow-auto" direction='horizontal'>
         <RequestNav webhooks={webhooks} handleRequestInfoClick={handleRequestInfoClick}/>
         <Request reqInfo={reqInfo} reqPayload={requestDetail}/>
@@ -108,7 +105,6 @@ const BinNav = ({ binId, refreshList, setWebhooks }) => {
 
 const App = () => {
   const [allBins, setAllBins] = useState(localBins.getSavedBinIds());
-  const [binId, setBinId] = useState("");
   const [webhooks, setWebhooks] = useState([]);
   const [requestDetail, setRequestDetail] = useState("");
 
@@ -121,8 +117,8 @@ const App = () => {
             {/* { (allBins.length > 0) && // TODO, this is a route for the baseURL but while there are local bins saved
               <Route path='/' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} setBinId={setBinId} binId={binId}/>} />
             } */}
-            <Route path='/' element={<NoBin setBinId={setBinId}/>} />
-            <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} setBinId={setBinId} binId={binId}/>} />
+            <Route path='/' element={<NoBin />} />
+            <Route path='/:binId' element={<SpecifiedBin webhooks={webhooks} setWebhooks={setWebhooks} requestDetail = {requestDetail} setRequestDetail = {setRequestDetail} />} />
           </Routes>
         </Router>
       </Stack>
