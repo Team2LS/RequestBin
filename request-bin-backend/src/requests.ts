@@ -7,9 +7,9 @@ import { makeUrlPath } from './helpers';
 // get all payloads from mongoDB
 // TODO Delete, used for testing purposes
 requestsRouter.get('/', async(req, res) => {
-  const requests = await getAllPayloads()
-
-  res.json(requests)
+  // const requests = await getAllPayloads()
+  console.log(req);
+  res.json(req)
 })
 
 // get a payload from mongoDB
