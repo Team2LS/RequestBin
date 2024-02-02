@@ -36,9 +36,10 @@ exports.getAllRequestFromBin = exports.getAllBins = exports.createBin = exports.
 const pg = __importStar(require("pg"));
 const Client = pg.Client;
 const CONNECTION = {
-    // user: "postgres",
-    // password: "myPassword",
-    database: "request-bin"
+    host: "/var/run/postgresql",
+    port: 5432,
+    user: "emargetis",
+    database: "rhh"
 };
 function getBinId(urlPath) {
     return __awaiter(this, void 0, void 0, function* () {
