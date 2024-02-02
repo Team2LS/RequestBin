@@ -30,11 +30,15 @@ requestsRouter.post('/', async(req, res) => {
   let urlPath
 
   if (req.headers.host === undefined) {
+    console.log('host header is undefined')
     res.status(400).send()
     return null
   } else {
+    console.log('setting url path')
     urlPath = req.headers.host.split('.')[0]
   }
+
+  console.log('(AFTER IF BRANCH) The url path is:', urlPath);
 
   const binId = await getBinId(urlPath)
 

@@ -60,12 +60,15 @@ requestsRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, functio
     console.log('received an endpoint', req);
     let urlPath;
     if (req.headers.host === undefined) {
+        console.log('host header is undefined');
         res.status(400).send();
         return null;
     }
     else {
+        console.log('setting url path');
         urlPath = req.headers.host.split('.')[0];
     }
+    console.log('(AFTER IF BRANCH) The url path is:', urlPath);
     const binId = yield (0, psql_1.getBinId)(urlPath);
     if (urlPath.split('.')[0] == undefined) {
         res.status(400).send();
