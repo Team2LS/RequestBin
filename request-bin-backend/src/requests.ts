@@ -26,6 +26,7 @@ requestsRouter.get('/api/payload/:id', async(req, res) => {
 
 // saves payload to mongoDB and request to postgres
 requestsRouter.post('/', async(req, res) => {
+  console.log('received an endpoint', req);
   let urlPath
 
   if (req.headers.host === undefined) {
