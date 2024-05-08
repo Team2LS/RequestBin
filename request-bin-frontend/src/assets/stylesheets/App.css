@@ -1,0 +1,25 @@
+div {
+  padding: 1em;
+}
+
+#root {
+  height: 0;
+  width: 0;
+  padding: 0;
+}
+
+.requests {
+  background: #56555a;
+  color: #ffffff;
+  text-align: center;
+  margin-top: 3px;
+  padding: 5px;
+}
+
+.requests:hover {
+  background: #ffffff;
+  color: #56555a;
+  border: solid;
+  border-width: 1px;
+  border-color: #56555a;
+}
